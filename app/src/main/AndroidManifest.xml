@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="pl.md.cardmanager">
+
+    <permission
+        android:name="pl.md.READ_PERMISSION"
+        android:protectionLevel="dangerous" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+
+    <application
+        android:name=".CardApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.CardManager">
+        <activity android:name=".activities.CardListActivity" />
+        <activity android:name=".activities.AddEditCardActivity" />
+        <activity android:name=".activities.AuthActivity" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name=".CardContentProvider"
+            android:authorities="pl.md.cardmanager.CardContentProvider"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:readPermission="pl.md.READ_PERMISSION" />
+    </application>
+</manifest>
