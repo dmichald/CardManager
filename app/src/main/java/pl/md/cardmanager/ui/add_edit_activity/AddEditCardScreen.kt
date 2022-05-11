@@ -76,20 +76,29 @@ fun AddEditCard(
         }
     ) {
         Column(
-            modifier = Modifier.padding(10.dp),
+            modifier = Modifier
+                .padding(5.dp)
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(20.dp))
-            TextField(value = name.value, onValueChange = { name.value = it }, label = {
-                Text(
-                    text = "Nazwa karty:"
-                )
-            }, enabled = enabled)
+            TextField(
+                value = name.value,
+                onValueChange = { if (name.value.length < 30) name.value = it },
+                label = {
+                    Text(
+                        text = "Nazwa karty:"
+                    )
+                },
+                enabled = enabled
+            )
             Spacer(modifier = Modifier.height(15.dp))
             TextField(
                 value = number.value,
-                onValueChange = { number.value = it },
+                onValueChange = {
+                    if (isNumeric(number.value) && number.value.length <= 16) number.value = it
+                },
                 label = {
                     Text(
                         text = "Numer karty:"
@@ -101,7 +110,14 @@ fun AddEditCard(
             Spacer(modifier = Modifier.height(15.dp))
             TextField(
                 value = cvc.value,
-                onValueChange = { cvc.value = it },
+                onValueChange = {
+                    if (isNumeric(cvc.value) && cvc.value.length <= 4) {
+                        cvc.value = it
+                    }
+                    if (cvc.value.length > 4) {
+                        cvc.value = it.substring(0, 4)
+                    }
+                },
                 label = {
                     Text(
                         text = "CVC:"
@@ -113,7 +129,7 @@ fun AddEditCard(
             Spacer(modifier = Modifier.height(15.dp))
             TextField(
                 value = owner.value,
-                onValueChange = { owner.value = it },
+                onValueChange = { if (owner.value.length < 30) owner.value = it },
                 label = {
                     Text(
                         text = "Wlasciciel:"
@@ -125,7 +141,10 @@ fun AddEditCard(
 
             TextField(
                 value = expirationMonth.value,
-                onValueChange = { expirationMonth.value = it },
+                onValueChange = {
+                    if (isNumeric(expirationMonth.value) && expirationMonth.value.length <= 2) expirationMonth.value =
+                        it
+                },
                 label = {
                     Text(
                         text = "Miesiac:"
@@ -134,10 +153,13 @@ fun AddEditCard(
                 enabled = enabled,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
-            Spacer(modifier = Modifier.width(15.dp))
+            Spacer(modifier = Modifier.height(15.dp))
             TextField(
                 value = expirationYear.value,
-                onValueChange = { expirationYear.value = it },
+                onValueChange = {
+                    if (isNumeric(expirationYear.value) && expirationYear.value.length <= 4) expirationYear.value =
+                        it
+                },
                 label = {
                     Text(
                         text = "Rok:"
@@ -150,6 +172,9 @@ fun AddEditCard(
         }
 
     }
-
-
 }
+
+fun isNumeric(toCheck: String): Boolean {
+    return toCheck.all { char -> char.isDigit() }
+}
+

@@ -30,4 +30,7 @@ interface CreditCardDao {
 
     @Query("SELECT name, number, ownerName,expirationDate,CVC FROM CreditCard WHERE userId = :userId")
     fun getUserBackup(userId: Long): List<CreditCardBackupDto>
+
+    @Insert
+    suspend fun insertAllCards(cardsList: List<CreditCard>)
 }

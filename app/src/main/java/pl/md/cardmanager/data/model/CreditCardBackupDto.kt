@@ -29,3 +29,6 @@ object DateSerializer : KSerializer<Date> {
         encoder.encodeString(value.toString())
     }
 }
+
+@Serializable
+data class CreditCardBackupDtoList(val cards: List<CreditCardBackupDto>)

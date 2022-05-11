@@ -24,7 +24,7 @@ class LoginViewModel @Inject constructor(
 
     fun onEvent(event: LoginEvent) {
         when (event) {
-            is LoginEvent.OnLoginButtonClick -> {
+            is LoginEvent.OnRegisterButtonClick -> {
                 viewModelScope.launch {
                     validateUser(event.newUser)
                 }
@@ -32,6 +32,12 @@ class LoginViewModel @Inject constructor(
             is LoginEvent.OnAuthenticationAttempt -> {
                 viewModelScope.launch {
                     validatePin(event.pin)
+                }
+            }
+
+            is LoginEvent.OnLoginButtonClick -> {
+                viewModelScope.launch {
+                    validateUserCredentials(event.username, event.password)
                 }
             }
         }
@@ -89,6 +95,7 @@ class LoginViewModel @Inject constructor(
             if (user.password == pin) {
                 authPassed.value = true
                 userRepo.resetFailedLoginAttempts(UserUtils.loggedUserId)
+                sendUiEvent(UiEvent.ShowSnackbar("Konto utworzone. Zaloguj się."))
 
             } else {
                 authPassed.value = false
@@ -98,6 +105,19 @@ class LoginViewModel @Inject constructor(
 
     }
 
+    private suspend fun validateUserCredentials(username: String, password: String) {
+        if (username.isBlank() || password.isBlank()) {
+            authPassed.value = false
+            sendUiEvent(UiEvent.ShowSnackbar("Niepoprawne dane logowania"))
+            return
+        }
+        val user = userRepo.getUser(username, password)
+        if (user == null) {
+            sendUiEvent(UiEvent.ShowSnackbar("Niepoprawne dane logowania"))
+        } else {
+            loggedUserId.value = user.id
+        }
+    }
 
 }
 

@@ -14,4 +14,5 @@ interface CreditCardRepository {
     fun getUserCards(userId: Long): Flow<List<CardInfo>>
     fun getUserCardsCursor(userId: Long): Cursor
     suspend fun getUserBackup(userId: Long): List<CreditCardBackupDto>
+    suspend fun importCards(userId: Long, cards: List<CreditCardBackupDto>)
 }

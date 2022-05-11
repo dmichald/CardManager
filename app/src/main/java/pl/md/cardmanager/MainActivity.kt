@@ -12,56 +12,41 @@ import dagger.hilt.android.AndroidEntryPoint
 import pl.md.cardmanager.activities.CardListActivity
 import pl.md.cardmanager.ui.login.LoginViewModel
 import pl.md.cardmanager.util.UserUtils
-import pl.md.cardmanager.util.crypto.Decryptor
-import pl.md.cardmanager.util.crypto.EnCryptor
-import pl.md.cardmanager.util.crypto.KeyStoreUtil
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     companion object {
         val TAG = MainActivity::class.qualifiedName
-        val CURRENT_USER_KEY_ALIAS = "USER_KEY_${UserUtils.loggedUserId}"
+        val USER_KEY_PREFIX = "USER_KEY_"
+        lateinit var CURRENT_USER_KEY_ALIAS: String
     }
 
     private val viewModel: LoginViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (false) {
-            UserUtils.clearUser(this)
-        }
 
         val userId = UserUtils.getCurrentUserId(this)
         if (userId != UserUtils.NO_USER) {
             UserUtils.loggedUserId = userId
+            CURRENT_USER_KEY_ALIAS = USER_KEY_PREFIX + userId
             val intent = Intent(this, CardListActivity::class.java)
             startActivity(intent)
             finish()
         }
         setContent {
-            LoginPage()
+            LoginPage(true)
         }
+
         viewModel.loggedUserId.observe(this, Observer {
             if (it != UserUtils.NO_USER) {
                 UserUtils.saveUserToSharedPref(this, it)
                 Log.d(TAG, "Save user to shared pref : '$it'")
                 UserUtils.loggedUserId = it
+                CURRENT_USER_KEY_ALIAS = USER_KEY_PREFIX + it
                 val intent = Intent(this, CardListActivity::class.java)
                 startActivity(intent)
-                if(isFirstRun()){
-                    KeyStoreUtil.generateAndSave(CURRENT_USER_KEY_ALIAS)
-                    Log.d(TAG, "Generate key for user: ${UserUtils.loggedUserId}")
-                }
             }
         })
-
-
-        val toEncrypt = "TO ENCRYPT"
-        val keyalias = "ALIASK"
-        val key = KeyStoreUtil.generateAndSave(keyalias)
-        val getKey = KeyStoreUtil.getSecretKey(keyalias)
-        val encryptor = EnCryptor.encryptText(getKey, toEncrypt)
-        val dec = Decryptor.decryptData(keyalias, encryptor.encryption, encryptor.encryptionIV)
-        Log.d(TAG, "DECRYPTED: $dec")
     }
 
     override fun onDestroy() {
@@ -69,8 +54,5 @@ class MainActivity : ComponentActivity() {
         UserUtils.putBoolean(applicationContext, UserUtils.FIRST_RUN, false)
     }
 
-    private fun isFirstRun(): Boolean {
-        return UserUtils.getBoolean(applicationContext, UserUtils.FIRST_RUN)
-    }
 }
 

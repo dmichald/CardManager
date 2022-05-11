@@ -9,7 +9,7 @@ class UserUtils {
         var loggedUserId = NO_USER
         private const val preferencesPrefix = "pl.md."
         private const val currentUserKey = preferencesPrefix + "CURRENT_USER_ID"
-        private const val ksAlias = "LOGGED_USER"
+        private const val LOGGED_USER_ID_IV = "LOGGED_USER_ID_IV"
         const val FIRST_RUN = "FIRST_RUN"
         const val DB_KEY = "DB_KEY"
         const val DB_KEY_IV = "DB_KEY_IV"
