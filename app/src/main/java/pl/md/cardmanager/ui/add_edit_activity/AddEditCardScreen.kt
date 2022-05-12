@@ -13,9 +13,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pl.md.cardmanager.ui.model.CreditCardDto
 import pl.md.cardmanager.util.UiEvent
@@ -27,6 +29,7 @@ fun AddEditCard(
     card: CreditCardDto,
     enabled: Boolean
 ) {
+    val scaffoldState = rememberScaffoldState()
     val activity = (LocalContext.current as? Activity)
     val name = remember { mutableStateOf(card.name) }
     val number = remember { mutableStateOf(card.number) }
@@ -34,12 +37,11 @@ fun AddEditCard(
     val owner = remember { mutableStateOf(card.ownerName) }
     val expirationMonth = remember { mutableStateOf(card.expirationMonth) }
     val expirationYear = remember { mutableStateOf(card.expirationYear) }
-    val scaffoldState = rememberScaffoldState()
 
     LaunchedEffect(true) {
         viewModel.uiEvent.collect { event ->
             when (event) {
-                is UiEvent.ShowSnackbar -> {
+                is UiEvent.ShowToast -> {
                     Toast.makeText(activity, event.message, Toast.LENGTH_LONG).show()
                 }
                 is UiEvent.FinishActivity -> {
@@ -53,20 +55,27 @@ fun AddEditCard(
         modifier = Modifier.padding(20.dp),
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                viewModel.onEvent(
-                    AddEditCardEvent.OnSaveButtonClick(
-                        CreditCardDto(
-                            id = card.id,
-                            name = name.value,
-                            number = number.value,
-                            CVC = cvc.value,
-                            ownerName = owner.value,
-                            expirationMonth = expirationMonth.value,
-                            expirationYear = expirationYear.value,
-                            userId = UserUtils.loggedUserId
+                if (enabled) {
+                    viewModel.onEvent(
+                        AddEditCardEvent.OnSaveButtonClick(
+                            CreditCardDto(
+                                id = card.id,
+                                name = name.value,
+                                number = number.value,
+                                CVC = cvc.value,
+                                ownerName = owner.value,
+                                expirationMonth = expirationMonth.value,
+                                expirationYear = expirationYear.value,
+                                userId = UserUtils.loggedUserId
+                            )
                         )
                     )
-                )
+                } else {
+                    viewModel.onEvent(
+                        AddEditCardEvent.OnCloseButtonClick
+                    )
+                }
+
             }) {
                 Icon(
                     imageVector = Icons.Default.Check,
@@ -82,10 +91,11 @@ fun AddEditCard(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(text = viewModel.errors, fontSize = 15.sp, color = Color.Red)
             Spacer(modifier = Modifier.height(20.dp))
             TextField(
                 value = name.value,
-                onValueChange = { if (name.value.length < 30) name.value = it },
+                onValueChange = { if (it.length < 30) name.value = it },
                 label = {
                     Text(
                         text = "Nazwa karty:"
@@ -97,7 +107,7 @@ fun AddEditCard(
             TextField(
                 value = number.value,
                 onValueChange = {
-                    if (isNumeric(number.value) && number.value.length <= 16) number.value = it
+                    if (isNumeric(it) && it.length <= 16) number.value = it
                 },
                 label = {
                     Text(
@@ -111,11 +121,8 @@ fun AddEditCard(
             TextField(
                 value = cvc.value,
                 onValueChange = {
-                    if (isNumeric(cvc.value) && cvc.value.length <= 4) {
+                    if (isNumeric(it) && it.length <= 4) {
                         cvc.value = it
-                    }
-                    if (cvc.value.length > 4) {
-                        cvc.value = it.substring(0, 4)
                     }
                 },
                 label = {
@@ -129,7 +136,7 @@ fun AddEditCard(
             Spacer(modifier = Modifier.height(15.dp))
             TextField(
                 value = owner.value,
-                onValueChange = { if (owner.value.length < 30) owner.value = it },
+                onValueChange = { if (it.length < 30) owner.value = it },
                 label = {
                     Text(
                         text = "Wlasciciel:"
@@ -142,8 +149,7 @@ fun AddEditCard(
             TextField(
                 value = expirationMonth.value,
                 onValueChange = {
-                    if (isNumeric(expirationMonth.value) && expirationMonth.value.length <= 2) expirationMonth.value =
-                        it
+                    if (isCorrectMonth(it)) expirationMonth.value = it
                 },
                 label = {
                     Text(
@@ -157,7 +163,7 @@ fun AddEditCard(
             TextField(
                 value = expirationYear.value,
                 onValueChange = {
-                    if (isNumeric(expirationYear.value) && expirationYear.value.length <= 4) expirationYear.value =
+                    if (isCorrectYear(it)) expirationYear.value =
                         it
                 },
                 label = {
@@ -175,6 +181,16 @@ fun AddEditCard(
 }
 
 fun isNumeric(toCheck: String): Boolean {
-    return toCheck.all { char -> char.isDigit() }
+    return toCheck.all { c -> c.isDigit() }
 }
+
+fun isCorrectMonth(s: String): Boolean {
+    return isNumeric(s) && s.length <= 2
+}
+
+fun isCorrectYear(s: String): Boolean {
+    return isNumeric(s) && s.length <= 4
+}
+
+
 

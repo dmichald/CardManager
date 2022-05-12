@@ -2,7 +2,7 @@ package pl.md.cardmanager.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.sql.Date
+import java.util.*
 
 @Entity
 data class User(
@@ -10,5 +10,7 @@ data class User(
     val password: String,
     var incorrectLoginAttempt: Int,
     val pin: String,
+    var encryptedUserId: String = "",
+    val userKeyAlias: String = UUID.randomUUID().toString(),
     @PrimaryKey(autoGenerate = true) val id: Long? = null
 )

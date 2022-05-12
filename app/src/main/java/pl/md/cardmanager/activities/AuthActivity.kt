@@ -8,7 +8,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Observer
 import dagger.hilt.android.AndroidEntryPoint
 import pl.md.cardmanager.ui.auth.AuthenticateScreen
-import pl.md.cardmanager.ui.login.LoginViewModel
+import pl.md.cardmanager.ui.login.AuthenticationViewModel
 
 @AndroidEntryPoint
 class AuthActivity : ComponentActivity() {
@@ -16,7 +16,7 @@ class AuthActivity : ComponentActivity() {
         val TAG = AuthActivity::class.qualifiedName
     }
 
-    private val viewModel: LoginViewModel by viewModels()
+    private val viewModel: AuthenticationViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.authPassed.observe(this, Observer {

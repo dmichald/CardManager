@@ -10,27 +10,28 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pl.md.cardmanager.ui.login.LoginEvent
-import pl.md.cardmanager.ui.login.LoginViewModel
+import pl.md.cardmanager.ui.login.AuthenticationViewModel
 import pl.md.cardmanager.util.UiEvent
 
 @Composable
 fun AuthenticateScreen(
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: AuthenticationViewModel = hiltViewModel()
 ) {
     val scaffoldState = rememberScaffoldState()
     LaunchedEffect(true) {
         viewModel.uiEvent.collect { event ->
             when (event) {
-                is UiEvent.ShowSnackbar -> {
+                is UiEvent.ShowToast -> {
                     scaffoldState.snackbarHostState.showSnackbar(
-                        message = event.message,
-                        actionLabel = event.action
+                        message = event.message
                     )
                 }
                 else -> Unit
@@ -48,13 +49,14 @@ fun AuthenticateScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             val pin = remember { mutableStateOf(TextFieldValue()) }
             Text(text = "Aby wyświetlić dane kart musiśz podać pin.")
+            Text(text = viewModel.usePasswordError, fontSize = 15.sp, color = Color.Red)
+            Text(text = viewModel.error, fontSize = 15.sp, color = Color.Red)
 
             Spacer(modifier = Modifier.height(20.dp))
             TextField(
-                label = { Text(text = "Pin") },
+                label = { Text(text = viewModel.pinPasswordLabel) },
                 value = pin.value,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),

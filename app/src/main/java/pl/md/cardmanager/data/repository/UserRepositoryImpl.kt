@@ -10,11 +10,11 @@ class UserRepositoryImpl(private val dao: UserDao) : UserRepository {
         val TAG = UserRepositoryImpl::class.qualifiedName
     }
 
-    override suspend fun insertUser(newUser: UserRegisterDto): Long {
+    override suspend fun insertUser(newUser: UserRegisterDto): User {
         val user = User(newUser.username, newUser.password, 0, newUser.pin)
-        val userId = dao.insertUser(user)
+        val createdUserId = dao.insertUser(user)
         Log.d(TAG, "Saved user with name: '${newUser.username}' + $user")
-        return userId
+        return dao.getUserById(createdUserId)
     }
 
     override suspend fun getUser(userName: String, userPassword: String): User? {
@@ -36,6 +36,12 @@ class UserRepositoryImpl(private val dao: UserDao) : UserRepository {
     override suspend fun resetFailedLoginAttempts(userId: Long) {
         val user = dao.getUserById(userId)
         user.incorrectLoginAttempt = 0
+        dao.insertUser(user)
+    }
+
+    override suspend fun insertUserEncryptedPassword(userId: Long, encryptedId: String) {
+        val user = dao.getUserById(userId)
+        user.encryptedUserId = encryptedId
         dao.insertUser(user)
     }
 

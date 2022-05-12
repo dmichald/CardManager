@@ -116,7 +116,7 @@ fun CardItem(
 fun logOut(c: Context) {
     UserUtils.clearUser(c as CardListActivity)
     val intent = Intent(c, MainActivity::class.java)
-    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
     c.startActivity(intent)
 }
 

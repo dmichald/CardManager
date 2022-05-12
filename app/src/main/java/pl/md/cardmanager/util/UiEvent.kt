@@ -4,9 +4,8 @@ import android.app.Activity
 
 sealed class UiEvent {
     object FinishActivity : UiEvent()
-    data class ShowSnackbar(
-        val message: String,
-        val action: String? = null
+    data class ShowToast(
+        val message: String
     ) : UiEvent()
 
 }

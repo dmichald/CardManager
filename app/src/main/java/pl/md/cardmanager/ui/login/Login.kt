@@ -1,5 +1,6 @@
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -11,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -22,26 +24,24 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pl.md.cardmanager.activities.RegisterActivity
 import pl.md.cardmanager.ui.login.LoginEvent
-import pl.md.cardmanager.ui.login.LoginViewModel
+import pl.md.cardmanager.ui.login.AuthenticationViewModel
 import pl.md.cardmanager.ui.model.UserRegisterDto
 import pl.md.cardmanager.util.UiEvent
 
 @Composable
 fun LoginPage(
     isLogin: Boolean,
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: AuthenticationViewModel = hiltViewModel()
 
 ) {
-    val maxChars = 50
+    val maxChars = 30
     val scaffoldState = rememberScaffoldState()
+    val context = LocalContext.current
     LaunchedEffect(true) {
         viewModel.uiEvent.collect { event ->
             when (event) {
-                is UiEvent.ShowSnackbar -> {
-                    scaffoldState.snackbarHostState.showSnackbar(
-                        message = event.message,
-                        actionLabel = event.action
-                    )
+                is UiEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
                 else -> Unit
             }
@@ -67,6 +67,7 @@ fun LoginPage(
             } else {
                 Text(text = "Rejestracja")
             }
+            Text(text = viewModel.error, fontSize = 15.sp, color = Color.Red)
             Spacer(modifier = Modifier.height(20.dp))
             TextField(
                 label = { Text(text = "Nazwa użytkownika") },

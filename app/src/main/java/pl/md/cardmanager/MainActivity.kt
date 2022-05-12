@@ -10,25 +10,26 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Observer
 import dagger.hilt.android.AndroidEntryPoint
 import pl.md.cardmanager.activities.CardListActivity
-import pl.md.cardmanager.ui.login.LoginViewModel
+import pl.md.cardmanager.ui.login.AuthenticationViewModel
+import pl.md.cardmanager.util.SharedPreferencesUtils
 import pl.md.cardmanager.util.UserUtils
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     companion object {
         val TAG = MainActivity::class.qualifiedName
-        val USER_KEY_PREFIX = "USER_KEY_"
         lateinit var CURRENT_USER_KEY_ALIAS: String
     }
 
-    private val viewModel: LoginViewModel by viewModels()
+    private val viewModel: AuthenticationViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // UserUtils.clearUser(this)
 
         val userId = UserUtils.getCurrentUserId(this)
         if (userId != UserUtils.NO_USER) {
-            UserUtils.loggedUserId = userId
-            CURRENT_USER_KEY_ALIAS = USER_KEY_PREFIX + userId
+            UserUtils.loggedUserId = UserUtils.getCurrentUserId(this)
+            CURRENT_USER_KEY_ALIAS = UserUtils.getUserSecretKeyAlias(applicationContext)
             val intent = Intent(this, CardListActivity::class.java)
             startActivity(intent)
             finish()
@@ -37,21 +38,33 @@ class MainActivity : ComponentActivity() {
             LoginPage(true)
         }
 
+        viewModel.loggedUserKeyAlias.observe(this, Observer {
+            val emptyGuid = "00000000-0000-0000-0000-000000000000"
+            if (it != emptyGuid) {
+                UserUtils.putUserSecretKeyAlias(applicationContext, it)
+            }
+        })
+
         viewModel.loggedUserId.observe(this, Observer {
-            if (it != UserUtils.NO_USER) {
+            if (it != UserUtils.NO_USER.toString()) {
                 UserUtils.saveUserToSharedPref(this, it)
                 Log.d(TAG, "Save user to shared pref : '$it'")
-                UserUtils.loggedUserId = it
-                CURRENT_USER_KEY_ALIAS = USER_KEY_PREFIX + it
+                UserUtils.loggedUserId = UserUtils.getCurrentUserId(this)
+                CURRENT_USER_KEY_ALIAS = UserUtils.getUserSecretKeyAlias(applicationContext)
                 val intent = Intent(this, CardListActivity::class.java)
                 startActivity(intent)
             }
         })
+
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        UserUtils.putBoolean(applicationContext, UserUtils.FIRST_RUN, false)
+        SharedPreferencesUtils.putBoolean(
+            applicationContext,
+            UserUtils.FIRST_RUN_SHARED_PREF,
+            false
+        )
     }
 
 }

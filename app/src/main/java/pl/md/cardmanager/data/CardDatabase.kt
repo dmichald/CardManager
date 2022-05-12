@@ -11,7 +11,7 @@ import pl.md.cardmanager.data.model.User
 
 @Database(
     entities = [User::class, CreditCard::class],
-    version = 3
+    version = 5
 )
 @TypeConverters(DateConverter::class)
 abstract class CardDatabase : RoomDatabase() {

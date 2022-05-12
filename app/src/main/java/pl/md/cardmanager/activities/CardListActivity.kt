@@ -77,14 +77,14 @@ class CardListActivity : ComponentActivity() {
                         val cards = importCards(fileContent)
                         cardRepository.importCards(UserUtils.loggedUserId, cards)
                         Log.d(TAG, "Cards imported. Count: ${cards.size}")
-                        "Zaimportowany ${cards.size} karty"
-                    }catch (e: Exception){
-                        Log.d(TAG, e.message!!)
-                        "Nie mozna rozpoznać pliku. Wybierz inny plik."
+                        "Zaimportowano ${cards.size} karty"
+                    } catch (e: Exception) {
+                        Log.d(TAG, e.stackTraceToString())
+                        "Nie mozna rozpoznać pliku. Wybierz inny plik. (Upewnij się, że backup wykonano z Twojego konta.)"
                     }
 
                     this@CardListActivity.runOnUiThread {
-                        Toast.makeText(applicationContext, toastText, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(applicationContext, toastText, Toast.LENGTH_LONG).show()
                     }
                 }
 
@@ -123,7 +123,7 @@ class CardListActivity : ComponentActivity() {
 
     private fun onImportClick() {
         checkForPermission(
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             "read",
             READ_EXTERNAL_STORAGE_CODE
         )
@@ -141,34 +141,38 @@ class CardListActivity : ComponentActivity() {
 
     private fun onExportClick(activity: CardListActivity) {
         checkForPermission(
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             "write",
             WRITE_EXTERNAL_STORAGE_CODE
         )
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             == PackageManager.PERMISSION_GRANTED
         ) {
-            GlobalScope.launch() {
-                val cards = cardRepository.getUserBackup(UserUtils.loggedUserId)
-                var toastText: String
-                toastText = if (cards.isEmpty()) {
-                    "Brak kart. Dodaj karty."
-                } else {
-                    exportCards(cards)
-                    "Zapisano plik z kartami do folderu 'Pobrane'"
-                }
-                activity.runOnUiThread {
-                    Toast.makeText(applicationContext, toastText, Toast.LENGTH_SHORT).show()
-                }
-
-            }
-
-
+            exportCards(this)
+        } else {
+            val toastText =
+                "Brak uprawnień do zarządzania pamięcią wspólną. Dodaj odpowienie uprawnienia."
+            Toast.makeText(applicationContext, toastText, Toast.LENGTH_LONG).show()
         }
-
     }
 
-    fun exportCards(cards: List<CreditCardBackupDto>) {
+    private fun exportCards(activity: ComponentActivity) {
+        GlobalScope.launch() {
+            val cards = cardRepository.getUserBackup(UserUtils.loggedUserId)
+            val toastText: String = if (cards.isEmpty()) {
+                "Brak kart. Dodaj karty aby wykonać export."
+            } else {
+                exportCards(cards)
+                "Zapisano plik z kartami do folderu 'Pobrane'"
+            }
+            activity.runOnUiThread {
+                Toast.makeText(applicationContext, toastText, Toast.LENGTH_LONG).show()
+            }
+
+        }
+    }
+
+    private fun exportCards(cards: List<CreditCardBackupDto>) {
         val cardsAsJson = Json.encodeToString(CreditCardBackupDtoList(cards))
         val key = KeyStoreUtil.getSecretKey(MainActivity.CURRENT_USER_KEY_ALIAS)
         val encrypted = EnCryptor.encryptText(key, cardsAsJson)
@@ -181,7 +185,7 @@ class CardListActivity : ComponentActivity() {
         Log.d(TAG, "Backup created: '$fileName'")
     }
 
-    fun saveToDownloadsDirectory(content: String, fileName: String) {
+    private fun saveToDownloadsDirectory(content: String, fileName: String) {
         var root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         root = File(root, fileName)
         val fout = FileOutputStream(root)
@@ -210,7 +214,7 @@ class CardListActivity : ComponentActivity() {
         return cardRepository.getUserCards(UserUtils.loggedUserId)
     }
 
-    private fun checkForPermission(permission: String, name: String, requestCode: Int) {
+    private fun checkForPermission(permission: String, requestCode: Int) {
         when {
             ContextCompat.checkSelfPermission(
                 applicationContext,
@@ -234,7 +238,7 @@ class CardListActivity : ComponentActivity() {
     private fun showDialog(permission: String, name: String, requestCode: Int) {
         val builder = AlertDialog.Builder(this)
         builder.apply {
-            setMessage("Uprawnienia $name potrzebne aby uzywac aplikacji")
+            setMessage("Uprawnienia do zarządzania pamięcią wspólną są potrzebne aby mów importować/eksportować karty.")
             setTitle("Uprawnienia potrzebne")
             setPositiveButton("OK") { _, _ ->
                 ActivityCompat.requestPermissions(
@@ -247,7 +251,7 @@ class CardListActivity : ComponentActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(
+/*    override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
@@ -274,6 +278,6 @@ class CardListActivity : ComponentActivity() {
                 READ_EXTERNAL_STORAGE_CODE -> innerCheck("read")
             }
         }
-    }
+    }*/
 }
 
