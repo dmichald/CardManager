@@ -123,28 +123,30 @@ class CardListActivity : ComponentActivity() {
 
     private fun onImportClick() {
         checkForPermission(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            "read",
+            Manifest.permission.READ_EXTERNAL_STORAGE,
             READ_EXTERNAL_STORAGE_CODE
-        )
+        ) { importCards() }
 
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             == PackageManager.PERMISSION_GRANTED
         ) {
-            var data = Intent(Intent.ACTION_OPEN_DOCUMENT)
-            data.type = "*/*"
-            data = Intent.createChooser(data, "Wybierz plik backupu")
-            launcher.launch(data)
+            importCards()
         }
+    }
+
+    private fun importCards() {
+        var data = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        data.type = "*/*"
+        data = Intent.createChooser(data, "Wybierz plik backupu")
+        launcher.launch(data)
     }
 
     private fun onExportClick(activity: CardListActivity) {
         checkForPermission(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            "write",
             WRITE_EXTERNAL_STORAGE_CODE
-        )
+        ) { exportCards(this) }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             == PackageManager.PERMISSION_GRANTED
         ) {
@@ -214,28 +216,23 @@ class CardListActivity : ComponentActivity() {
         return cardRepository.getUserCards(UserUtils.loggedUserId)
     }
 
-    private fun checkForPermission(permission: String, requestCode: Int) {
+    private fun checkForPermission(permission: String, requestCode: Int, action: () -> Unit) {
         when {
             ContextCompat.checkSelfPermission(
                 applicationContext,
                 permission
             ) == PackageManager.PERMISSION_GRANTED -> {
-                Toast.makeText(
-                    applicationContext,
-                    "$name uprawnienia przyznane BLABLA",
-                    Toast.LENGTH_SHORT
-                ).show()
+                action()
             }
             shouldShowRequestPermissionRationale(permission) -> showDialog(
                 permission,
-                name,
                 requestCode
             )
             else -> ActivityCompat.requestPermissions(this, arrayOf(permission), requestCode)
         }
     }
 
-    private fun showDialog(permission: String, name: String, requestCode: Int) {
+    private fun showDialog(permission: String, requestCode: Int) {
         val builder = AlertDialog.Builder(this)
         builder.apply {
             setMessage("Uprawnienia do zarządzania pamięcią wspólną są potrzebne aby mów importować/eksportować karty.")
