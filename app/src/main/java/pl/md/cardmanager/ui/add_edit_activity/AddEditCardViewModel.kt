@@ -10,8 +10,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import pl.md.cardmanager.data.repository.CreditCardRepository
-import pl.md.cardmanager.ui.model.CreditCardDto
-import pl.md.cardmanager.util.Converters
+import pl.md.cardmanager.ui.dto.CreditCardDto
+import pl.md.cardmanager.ui.dto.converters.Converters
 import pl.md.cardmanager.util.UiEvent
 import pl.md.cardmanager.util.UserUtils
 import javax.inject.Inject

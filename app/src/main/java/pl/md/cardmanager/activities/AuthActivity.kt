@@ -8,23 +8,20 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Observer
 import dagger.hilt.android.AndroidEntryPoint
 import pl.md.cardmanager.ui.auth.AuthenticateScreen
-import pl.md.cardmanager.ui.login.AuthenticationViewModel
+import pl.md.cardmanager.ui.auth.AuthenticationViewModel
 
 @AndroidEntryPoint
 class AuthActivity : ComponentActivity() {
-    companion object {
-        val TAG = AuthActivity::class.qualifiedName
-    }
 
     private val viewModel: AuthenticationViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.authPassed.observe(this, Observer {
+        viewModel.authPassed.observe(this) {
             if (it) {
                 val extras = getCardIdFromExtras()
                 startAddEditCardActivity(extras.first, extras.second)
             }
-        })
+        }
         setContent {
             AuthenticateScreen()
         }

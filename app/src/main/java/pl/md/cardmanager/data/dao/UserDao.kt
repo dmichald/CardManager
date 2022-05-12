@@ -9,7 +9,7 @@ import pl.md.cardmanager.data.model.User
 @Dao
 interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertUser(user: User) : Long
+    suspend fun insertUser(user: User): Long
 
     @Query("SELECT * FROM User WHERE name = :userName AND password = :userPassword")
     suspend fun getUser(userName: String, userPassword: String): User?

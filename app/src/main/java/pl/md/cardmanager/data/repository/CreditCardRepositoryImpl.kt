@@ -37,14 +37,21 @@ class CreditCardRepositoryImpl(private val dao: CreditCardDao) : CreditCardRepos
     }
 
     override suspend fun importCards(userId: Long, cards: List<CreditCardBackupDto>) {
-        val cardsToSave:MutableList<CreditCard> = mutableListOf()
-        for (dto in cards){
+        val cardsToSave: MutableList<CreditCard> = mutableListOf()
+        for (dto in cards) {
             cardsToSave.add(convertCreditCardBackupDtoToCreditCard(dto, userId))
         }
         dao.insertAllCards(cardsToSave)
     }
 }
 
-fun convertCreditCardBackupDtoToCreditCard(dto: CreditCardBackupDto, userId: Long):CreditCard{
-    return CreditCard(name = dto.name, number = dto.number, CVC = dto.CVC, ownerName = dto.ownerName, expirationDate = dto.expirationDate, userId = userId)
+fun convertCreditCardBackupDtoToCreditCard(dto: CreditCardBackupDto, userId: Long): CreditCard {
+    return CreditCard(
+        name = dto.name,
+        number = dto.number,
+        CVC = dto.CVC,
+        ownerName = dto.ownerName,
+        expirationDate = dto.expirationDate,
+        userId = userId
+    )
 }

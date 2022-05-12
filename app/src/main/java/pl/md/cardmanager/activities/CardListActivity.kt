@@ -43,7 +43,6 @@ class CardListActivity : ComponentActivity() {
         val TAG = CardListActivity::class.qualifiedName
     }
 
-    val WRITE_EXTERNAL_STORAGE_CODE = 101
     val READ_EXTERNAL_STORAGE_CODE = 102
 
     @Inject
@@ -54,7 +53,7 @@ class CardListActivity : ComponentActivity() {
         Log.d(TAG, "Current logged user: ${UserUtils.getCurrentUserId(this)}")
         setContent {
             CardList(
-                onExportClick = { onExportClick(this) },
+                onExportClick = { onExportClick() },
                 onImportClick = { onImportClick() },
                 onAddNewClick = { addNewCard() },
                 getCards(),
@@ -76,15 +75,13 @@ class CardListActivity : ComponentActivity() {
                         val fileContent = readTextFromUri(uri)
                         val cards = importCards(fileContent)
                         cardRepository.importCards(UserUtils.loggedUserId, cards)
-                        Log.d(TAG, "Cards imported. Count: ${cards.size}")
                         "Zaimportowano ${cards.size} karty"
                     } catch (e: Exception) {
                         Log.d(TAG, e.stackTraceToString())
                         "Nie mozna rozpoznać pliku. Wybierz inny plik. (Upewnij się, że backup wykonano z Twojego konta.)"
                     }
-
                     this@CardListActivity.runOnUiThread {
-                        Toast.makeText(applicationContext, toastText, Toast.LENGTH_LONG).show()
+                        showDialog("Import niedany", toastText)
                     }
                 }
 
@@ -122,16 +119,19 @@ class CardListActivity : ComponentActivity() {
     }
 
     private fun onImportClick() {
-        checkForPermission(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            READ_EXTERNAL_STORAGE_CODE
-        ) { importCards() }
 
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
             == PackageManager.PERMISSION_GRANTED
         ) {
             importCards()
+        } else {
+            checkForPermission(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                READ_EXTERNAL_STORAGE_CODE
+            ) { exportCards(this) }
+            val toastText =
+                "Brak uprawnień do zarządzania pamięcią wspólną. Dodaj odpowienie uprawnienia."
+            Toast.makeText(applicationContext, toastText, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -142,16 +142,22 @@ class CardListActivity : ComponentActivity() {
         launcher.launch(data)
     }
 
-    private fun onExportClick(activity: CardListActivity) {
-        checkForPermission(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            WRITE_EXTERNAL_STORAGE_CODE
-        ) { exportCards(this) }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+    private fun onExportClick() {
+
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
             == PackageManager.PERMISSION_GRANTED
         ) {
             exportCards(this)
         } else {
+            showDialog(Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE_CODE)
+
+            checkForPermission(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                READ_EXTERNAL_STORAGE_CODE
+            ) { exportCards(this) }
+
             val toastText =
                 "Brak uprawnień do zarządzania pamięcią wspólną. Dodaj odpowienie uprawnienia."
             Toast.makeText(applicationContext, toastText, Toast.LENGTH_LONG).show()
@@ -235,7 +241,7 @@ class CardListActivity : ComponentActivity() {
     private fun showDialog(permission: String, requestCode: Int) {
         val builder = AlertDialog.Builder(this)
         builder.apply {
-            setMessage("Uprawnienia do zarządzania pamięcią wspólną są potrzebne aby mów importować/eksportować karty.")
+            setMessage("Uprawnienia do zarządzania pamięcią wspólną są potrzebne aby móc importować/eksportować karty.")
             setTitle("Uprawnienia potrzebne")
             setPositiveButton("OK") { _, _ ->
                 ActivityCompat.requestPermissions(
@@ -248,33 +254,33 @@ class CardListActivity : ComponentActivity() {
         }
     }
 
-/*    override fun onRequestPermissionsResult(
+    override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        fun innerCheck(name: String) {
-            if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(
-                    applicationContext,
-                    "$name uprawnienia przyznane",
-                    Toast.LENGTH_SHORT
-                ).show()
-                //saveFile()
-            } else {
-                Toast.makeText(
-                    applicationContext,
-                    "$name uprawnienia nie przyznane",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-            when (requestCode) {
-                WRITE_EXTERNAL_STORAGE_CODE -> innerCheck("write")
-                READ_EXTERNAL_STORAGE_CODE -> innerCheck("read")
+        if (requestCode == READ_EXTERNAL_STORAGE_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] ==
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                val title = "Uprawnienia przyznane."
+                val message = "Uprawnienia zostały przyznane. Kliknij ponownie import/eksport."
+                showDialog(title, message)
             }
         }
-    }*/
+    }
+
+    private fun showDialog(title: String, message: String, action: () -> Unit = {}) {
+        val builder = AlertDialog.Builder(this)
+        builder.apply {
+            setMessage(message)
+            setTitle(title)
+            setPositiveButton("OK") { _, _ ->
+                action()
+            }
+            builder.create().show()
+        }
+    }
 }
 

@@ -1,19 +1,14 @@
 package pl.md.cardmanager.data.repository
 
-import android.util.Log
 import pl.md.cardmanager.data.dao.UserDao
 import pl.md.cardmanager.data.model.User
-import pl.md.cardmanager.ui.model.UserRegisterDto
+import pl.md.cardmanager.ui.dto.UserRegisterDto
 
 class UserRepositoryImpl(private val dao: UserDao) : UserRepository {
-    companion object {
-        val TAG = UserRepositoryImpl::class.qualifiedName
-    }
 
     override suspend fun insertUser(newUser: UserRegisterDto): User {
         val user = User(newUser.username, newUser.password, 0, newUser.pin)
         val createdUserId = dao.insertUser(user)
-        Log.d(TAG, "Saved user with name: '${newUser.username}' + $user")
         return dao.getUserById(createdUserId)
     }
 

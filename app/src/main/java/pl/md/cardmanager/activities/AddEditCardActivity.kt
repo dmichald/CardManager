@@ -9,8 +9,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import pl.md.cardmanager.data.repository.CreditCardRepository
 import pl.md.cardmanager.ui.add_edit_activity.AddEditCard
-import pl.md.cardmanager.ui.model.CreditCardDto
-import pl.md.cardmanager.util.Converters
+import pl.md.cardmanager.ui.dto.CreditCardDto
+import pl.md.cardmanager.ui.dto.converters.Converters
 import pl.md.cardmanager.util.UserUtils
 import javax.inject.Inject
 
@@ -20,7 +20,6 @@ class AddEditCardActivity : ComponentActivity() {
     lateinit var cardRepository: CreditCardRepository
 
     companion object {
-        val TAG = AddEditCardActivity::class.qualifiedName
         val NO_CREDIT_CARD by lazy { -1L }
         const val CREDIT_CARD_ID = "CREDIT_CARD_ID"
         const val CARD_VIEW_ENABLED = "CARD_VIEW_ENABLED"
@@ -54,6 +53,7 @@ class AddEditCardActivity : ComponentActivity() {
             finish()
         }
     }
+
     override fun onStop() {
         super.onStop()
         if (cardId != NO_CREDIT_CARD) {
@@ -74,7 +74,7 @@ class AddEditCardActivity : ComponentActivity() {
 
     private suspend fun getCard(cardId: Long): CreditCardDto {
         return if (cardId == NO_CREDIT_CARD) {
-            val card = CreditCardDto(userId = UserUtils.loggedUserId);
+            val card = CreditCardDto(userId = UserUtils.loggedUserId)
             card
         } else {
             val card = cardRepository.getCardById(cardId)

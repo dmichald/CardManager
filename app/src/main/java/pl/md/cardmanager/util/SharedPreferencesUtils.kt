@@ -3,7 +3,7 @@ package pl.md.cardmanager.util
 import android.content.Context
 
 class SharedPreferencesUtils {
-    companion object{
+    companion object {
         private const val preferencesPrefix = "pl.md."
 
         fun getBoolean(context: Context, key: String): Boolean {

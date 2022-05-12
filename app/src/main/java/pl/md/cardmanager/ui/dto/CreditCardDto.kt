@@ -1,4 +1,4 @@
-package pl.md.cardmanager.ui.model
+package pl.md.cardmanager.ui.dto
 
 import pl.md.cardmanager.util.UserUtils
 

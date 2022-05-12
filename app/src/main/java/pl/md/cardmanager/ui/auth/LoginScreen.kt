@@ -1,3 +1,5 @@
+package pl.md.cardmanager.ui.auth
+
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
@@ -23,9 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pl.md.cardmanager.activities.RegisterActivity
-import pl.md.cardmanager.ui.login.LoginEvent
-import pl.md.cardmanager.ui.login.AuthenticationViewModel
-import pl.md.cardmanager.ui.model.UserRegisterDto
+import pl.md.cardmanager.ui.dto.UserRegisterDto
 import pl.md.cardmanager.util.UiEvent
 
 @Composable
@@ -99,7 +99,7 @@ fun LoginPage(
                     onClick = {
                         if (!isLogin) {
                             viewModel.onEvent(
-                                LoginEvent.OnRegisterButtonClick(
+                                AuthenticationEvent.OnRegisterButtonClick(
                                     UserRegisterDto(
                                         username.value.text,
                                         password.value.text,
@@ -109,7 +109,7 @@ fun LoginPage(
                             )
                         } else {
                             viewModel.onEvent(
-                                LoginEvent.OnLoginButtonClick(
+                                AuthenticationEvent.OnLoginButtonClick(
                                     username.value.text,
                                     password.value.text
                                 )

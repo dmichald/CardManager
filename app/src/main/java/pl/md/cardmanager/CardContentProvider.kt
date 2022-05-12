@@ -4,17 +4,14 @@ import android.content.ContentProvider
 import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
-import androidx.room.Database
-import dagger.hilt.android.AndroidEntryPoint
-import pl.md.cardmanager.data.repository.CreditCardRepository
 import pl.md.cardmanager.util.UserUtils
-import javax.inject.Inject
 
 
 class CardContentProvider : ContentProvider() {
     private val cardDao by lazy {
         (context!!.applicationContext as CardApp).database.creditCardDao
     }
+
     override fun onCreate(): Boolean {
         return false
     }

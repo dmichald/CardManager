@@ -1,6 +1,5 @@
 package pl.md.cardmanager
 
-import LoginPage
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +9,9 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Observer
 import dagger.hilt.android.AndroidEntryPoint
 import pl.md.cardmanager.activities.CardListActivity
-import pl.md.cardmanager.ui.login.AuthenticationViewModel
+import pl.md.cardmanager.ui.auth.AuthenticationViewModel
+import pl.md.cardmanager.ui.auth.LoginPage
+import pl.md.cardmanager.util.Constants
 import pl.md.cardmanager.util.SharedPreferencesUtils
 import pl.md.cardmanager.util.UserUtils
 
@@ -24,7 +25,6 @@ class MainActivity : ComponentActivity() {
     private val viewModel: AuthenticationViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // UserUtils.clearUser(this)
 
         val userId = UserUtils.getCurrentUserId(this)
         if (userId != UserUtils.NO_USER) {
@@ -38,14 +38,13 @@ class MainActivity : ComponentActivity() {
             LoginPage(true)
         }
 
-        viewModel.loggedUserKeyAlias.observe(this, Observer {
-            val emptyGuid = "00000000-0000-0000-0000-000000000000"
-            if (it != emptyGuid) {
+        viewModel.loggedUserKeyAlias.observe(this) {
+            if (it != Constants.EMPTY_GUID) {
                 UserUtils.putUserSecretKeyAlias(applicationContext, it)
             }
-        })
+        }
 
-        viewModel.loggedUserId.observe(this, Observer {
+        viewModel.loggedUserId.observe(this) {
             if (it != UserUtils.NO_USER.toString()) {
                 UserUtils.saveUserToSharedPref(this, it)
                 Log.d(TAG, "Save user to shared pref : '$it'")
@@ -54,8 +53,13 @@ class MainActivity : ComponentActivity() {
                 val intent = Intent(this, CardListActivity::class.java)
                 startActivity(intent)
             }
-        })
+        }
 
+        SharedPreferencesUtils.putBoolean(
+            applicationContext,
+            UserUtils.FIRST_RUN_SHARED_PREF,
+            false
+        )
     }
 
     override fun onDestroy() {

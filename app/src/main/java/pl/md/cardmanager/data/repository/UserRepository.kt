@@ -1,7 +1,7 @@
 package pl.md.cardmanager.data.repository
 
 import pl.md.cardmanager.data.model.User
-import pl.md.cardmanager.ui.model.UserRegisterDto
+import pl.md.cardmanager.ui.dto.UserRegisterDto
 
 interface UserRepository {
     suspend fun insertUser(newUser: UserRegisterDto): User

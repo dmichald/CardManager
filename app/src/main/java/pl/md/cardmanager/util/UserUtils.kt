@@ -55,7 +55,26 @@ class UserUtils {
         }
 
         fun getCurrentUserId(context: Context): Long {
-            return getCurrentUserId((context as ComponentActivity))
+            val userVal = SharedPreferencesUtils.getString(
+                context.applicationContext,
+                CURRENT_USER_ID_SHARED_PREF,
+                NO_USER.toString()
+            )
+            val currentUserKeyAlias = getUserSecretKeyAlias(context)
+            return if (userVal == NO_USER.toString()) {
+                NO_USER
+            } else {
+                val encryption = userVal.split("#")[0]
+                val encryptionIV = userVal.split("#")[1]
+                val encryptionAsByteArray = Base64.decode(encryption, Base64.NO_WRAP)
+                val encryptionIVAsByteArray = Base64.decode(encryptionIV, Base64.NO_WRAP)
+                val decryptedId = Decryptor.decryptData(
+                    encryptedData = encryptionAsByteArray,
+                    encryptionIv = encryptionIVAsByteArray,
+                    keyAlias = currentUserKeyAlias
+                )
+                decryptedId.toLong()
+            }
         }
 
         fun saveUserToSharedPref(activity: ComponentActivity, userId: String) {

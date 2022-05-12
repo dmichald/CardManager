@@ -15,11 +15,11 @@ import pl.md.cardmanager.data.repository.UserRepository
 import pl.md.cardmanager.data.repository.UserRepositoryImpl
 import pl.md.cardmanager.util.SharedPreferencesUtils
 import pl.md.cardmanager.util.UserUtils
+import pl.md.cardmanager.util.crypto.BcryptUtil
 import pl.md.cardmanager.util.crypto.Decryptor
 import pl.md.cardmanager.util.crypto.EnCryptor
 import pl.md.cardmanager.util.crypto.KeyStoreUtil
 import javax.inject.Singleton
-import kotlin.random.Random
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -60,7 +60,7 @@ object AppModule {
     fun getPassword(isFirstRun: Boolean, app: Application): String {
         val passPhrase: String
         if (isFirstRun) {
-            passPhrase = Random.nextInt(10000, 9999999).toString()
+            passPhrase = BcryptUtil.secureRandom()
             val key = KeyStoreUtil.generateAndSave(UserUtils.DB_KEY_SHARED_PREF)
             val encrypted = EnCryptor.encryptText(key, passPhrase)
             val encryptionAsString = Base64.encodeToString(encrypted.encryption, Base64.NO_WRAP)

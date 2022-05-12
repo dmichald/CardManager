@@ -17,8 +17,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import pl.md.cardmanager.ui.login.LoginEvent
-import pl.md.cardmanager.ui.login.AuthenticationViewModel
 import pl.md.cardmanager.util.UiEvent
 
 @Composable
@@ -67,7 +65,7 @@ fun AuthenticateScreen(
                 Button(
                     onClick = {
                         viewModel.onEvent(
-                            LoginEvent.OnAuthenticationAttempt(
+                            AuthenticationEvent.OnAuthenticationAttempt(
                                 pin.value.text
                             )
                         )

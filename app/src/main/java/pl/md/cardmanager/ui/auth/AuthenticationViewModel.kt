@@ -1,4 +1,4 @@
-package pl.md.cardmanager.ui.login
+package pl.md.cardmanager.ui.auth
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,9 +10,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import pl.md.cardmanager.MainActivity
 import pl.md.cardmanager.data.repository.UserRepository
-import pl.md.cardmanager.ui.model.UserRegisterDto
+import pl.md.cardmanager.ui.dto.UserRegisterDto
+import pl.md.cardmanager.util.Constants
 import pl.md.cardmanager.util.UiEvent
 import pl.md.cardmanager.util.UserUtils
 import pl.md.cardmanager.util.crypto.BcryptUtil
@@ -24,14 +24,10 @@ import javax.inject.Inject
 class AuthenticationViewModel @Inject constructor(
     private val userRepo: UserRepository,
 ) : ViewModel() {
-    companion object {
-        val TAG = AuthenticationViewModel::class.java.toString()
-    }
 
     val loggedUserId = MutableLiveData(UserUtils.NO_USER.toString())
     val authPassed = MutableLiveData(false)
-    val emptyGuid = "00000000-0000-0000-0000-000000000000"
-    val loggedUserKeyAlias = MutableLiveData(emptyGuid)
+    val loggedUserKeyAlias = MutableLiveData(Constants.EMPTY_GUID)
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
     var error by mutableStateOf("")
@@ -43,20 +39,20 @@ class AuthenticationViewModel @Inject constructor(
         private set
 
 
-    fun onEvent(event: LoginEvent) {
+    fun onEvent(event: AuthenticationEvent) {
         when (event) {
-            is LoginEvent.OnRegisterButtonClick -> {
+            is AuthenticationEvent.OnRegisterButtonClick -> {
                 viewModelScope.launch {
                     validateNewuser(event.newUser)
                 }
             }
-            is LoginEvent.OnAuthenticationAttempt -> {
+            is AuthenticationEvent.OnAuthenticationAttempt -> {
                 viewModelScope.launch {
                     validatePin(event.pin)
                 }
             }
 
-            is LoginEvent.OnLoginButtonClick -> {
+            is AuthenticationEvent.OnLoginButtonClick -> {
                 viewModelScope.launch {
                     validateExisitngUser(event.username, event.password)
                 }

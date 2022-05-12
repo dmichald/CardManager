@@ -1,7 +1,7 @@
-package pl.md.cardmanager.util
+package pl.md.cardmanager.ui.dto.converters
 
 import pl.md.cardmanager.data.model.CreditCard
-import pl.md.cardmanager.ui.model.CreditCardDto
+import pl.md.cardmanager.ui.dto.CreditCardDto
 import java.sql.Date
 
 class Converters {
