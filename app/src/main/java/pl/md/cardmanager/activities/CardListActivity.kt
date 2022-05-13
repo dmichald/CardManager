@@ -133,7 +133,7 @@ class CardListActivity : ComponentActivity() {
             checkForPermission(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 READ_EXTERNAL_STORAGE_CODE
-            ) { exportCards(this) }
+            ) { importCards() }
             val toastText =
                 "Brak uprawnień do zarządzania pamięcią wspólną. Dodaj odpowienie uprawnienia."
             Toast.makeText(applicationContext, toastText, Toast.LENGTH_LONG).show()
