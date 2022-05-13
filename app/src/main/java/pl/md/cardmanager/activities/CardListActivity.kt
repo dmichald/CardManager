@@ -71,17 +71,22 @@ class CardListActivity : ComponentActivity() {
             val uri: Uri = data?.data!!
             it.data!!.data.also {
                 GlobalScope.launch {
-                    val toastText: String = try {
+                    val toastText: Pair<String, String> = try {
                         val fileContent = readTextFromUri(uri)
                         val cards = importCards(fileContent)
                         cardRepository.importCards(UserUtils.loggedUserId, cards)
-                        "Zaimportowano ${cards.size} karty"
+                        val message = "Zaimportowano ${cards.size} karty"
+                        val title = "Import udany"
+                        Pair(title, message)
                     } catch (e: Exception) {
                         Log.d(TAG, e.stackTraceToString())
-                        "Nie mozna rozpoznać pliku. Wybierz inny plik. (Upewnij się, że backup wykonano z Twojego konta.)"
+                        val title = "Import nieudany"
+                        val message =
+                            "Nie mozna rozpoznać pliku. Wybierz inny plik. (Upewnij się, że backup wykonano z Twojego konta.)"
+                        Pair(title, message)
                     }
                     this@CardListActivity.runOnUiThread {
-                        showDialog("Import niedany", toastText)
+                        showDialog(toastText.first, toastText.second)
                     }
                 }
 

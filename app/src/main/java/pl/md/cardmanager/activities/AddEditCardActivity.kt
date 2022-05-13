@@ -8,7 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import pl.md.cardmanager.data.repository.CreditCardRepository
-import pl.md.cardmanager.ui.add_edit_activity.AddEditCard
+import pl.md.cardmanager.ui.add_edit_card.AddEditCard
 import pl.md.cardmanager.ui.dto.CreditCardDto
 import pl.md.cardmanager.ui.dto.converters.Converters
 import pl.md.cardmanager.util.UserUtils

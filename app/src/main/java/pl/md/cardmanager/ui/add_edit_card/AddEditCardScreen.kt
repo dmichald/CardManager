@@ -1,4 +1,4 @@
-package pl.md.cardmanager.ui.add_edit_activity
+package pl.md.cardmanager.ui.add_edit_card
 
 import android.app.Activity
 import android.widget.Toast

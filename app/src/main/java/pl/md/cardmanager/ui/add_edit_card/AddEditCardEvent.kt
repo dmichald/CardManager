@@ -1,4 +1,4 @@
-package pl.md.cardmanager.ui.add_edit_activity
+package pl.md.cardmanager.ui.add_edit_card
 
 import pl.md.cardmanager.ui.dto.CreditCardDto
 
