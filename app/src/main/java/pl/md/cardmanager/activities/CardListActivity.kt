@@ -130,10 +130,8 @@ class CardListActivity : ComponentActivity() {
         ) {
             importCards()
         } else {
-            checkForPermission(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                READ_EXTERNAL_STORAGE_CODE
-            ) { importCards() }
+            showDialog(Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE_CODE)
+
             val toastText =
                 "Brak uprawnień do zarządzania pamięcią wspólną. Dodaj odpowienie uprawnienia."
             Toast.makeText(applicationContext, toastText, Toast.LENGTH_LONG).show()
@@ -157,12 +155,6 @@ class CardListActivity : ComponentActivity() {
             exportCards(this)
         } else {
             showDialog(Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE_CODE)
-
-            checkForPermission(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                READ_EXTERNAL_STORAGE_CODE
-            ) { exportCards(this) }
-
             val toastText =
                 "Brak uprawnień do zarządzania pamięcią wspólną. Dodaj odpowienie uprawnienia."
             Toast.makeText(applicationContext, toastText, Toast.LENGTH_LONG).show()
@@ -225,22 +217,6 @@ class CardListActivity : ComponentActivity() {
 
     private fun getCards(): kotlinx.coroutines.flow.Flow<List<CardInfo>> {
         return cardRepository.getUserCards(UserUtils.loggedUserId)
-    }
-
-    private fun checkForPermission(permission: String, requestCode: Int, action: () -> Unit) {
-        when {
-            ContextCompat.checkSelfPermission(
-                applicationContext,
-                permission
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                action()
-            }
-            shouldShowRequestPermissionRationale(permission) -> showDialog(
-                permission,
-                requestCode
-            )
-            else -> ActivityCompat.requestPermissions(this, arrayOf(permission), requestCode)
-        }
     }
 
     private fun showDialog(permission: String, requestCode: Int) {
